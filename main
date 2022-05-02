@@ -1,0 +1,86 @@
+package com.modules.passgenerator;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
+import android.os.Bundle;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+
+public class MainActivity extends AppCompatActivity {
+
+    // Alg
+    private static boolean okMaiusc, okMinusc, okNumeri, okSpeciali;
+    private static SecureRandom n = new SecureRandom();
+    private static final String MINUSC = "abcdefghijklmnopqrstuvwxyz";
+    private static final String MAIUSC = MINUSC.toUpperCase();
+    private static final String NUMERI = "0123456789";
+    private static final String SPECIALI = "!@#%&*()_-=[]?";
+    private static String BASE = new String();
+    private static int dimensioni;
+    private static int SafeCounter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        BASE = "";
+        okSpeciali = false;
+        okMinusc = false;
+        okMaiusc = false;
+        okNumeri = false;
+        SafeCounter = 0;
+    }
+    public static String generaPassword(int lung) {
+
+        if(okMinusc) BASE = BASE + MINUSC;
+        if(okMaiusc) BASE = BASE + MAIUSC;
+        if(okNumeri) BASE = BASE + NUMERI;
+        if(okSpeciali) BASE = BASE + SPECIALI;
+
+        int indice; char random;
+        StringBuilder stringa = new StringBuilder(lung);
+        for (int i = 0; i < lung-2; i++) {
+
+            indice = n.nextInt(BASE.length());
+            random = BASE.charAt(indice);
+            stringa.append(random);
+        }
+        indice = n.nextInt(10);
+        if(okNumeri) {
+            random = NUMERI.charAt(indice);
+            stringa.append(random);
+        } else {
+            random = BASE.charAt(indice);
+            stringa.append(random);
+        }
+        indice++;
+        if(okSpeciali) {
+            random = SPECIALI.charAt(indice);
+            stringa.append(random);
+        } else {
+            random = BASE.charAt(indice);
+            stringa.append(random);
+        }
+
+        // shuffle (if supported)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            String newStringa = new String();
+            newStringa = shuffle(stringa.toString());
+            return newStringa;
+        }else return stringa.toString();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public static String shuffle(String string) {
+        List<String> array = Arrays.asList(string.split(""));
+        Collections.shuffle(array);
+        return array.stream().collect(Collectors.joining());
+    }
+
+}
